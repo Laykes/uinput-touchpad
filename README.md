@@ -9,6 +9,16 @@ library and `python-evdev`, nothing else. There is no build step, no bundler and
 no daemon to register: copy the file to a machine and run it. That is the main
 reason to pick this over the more featureful alternatives listed at the bottom.
 
+<p align="center">
+  <img src="docs/trackpad.png" alt="Trackpad with the mouse buttons and the edge scroll strip" width="240">
+  <img src="docs/keyboard.png" alt="Keyboard layer with a text field and shortcut keys" width="240">
+  <img src="docs/media.png" alt="Media layer with playback, volume and slide controls" width="240">
+</p>
+
+<p align="center">
+  <em>Trackpad on its own, with the keyboard layer open, with the media layer open.</em>
+</p>
+
 ## Requirements
 
 - The phone and the machine on the same local network
