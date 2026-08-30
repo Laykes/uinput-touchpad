@@ -1,16 +1,17 @@
-# remote-mouse
+# uinput-touchpad
 
 Turn a phone into a trackpad and remote control for a Linux machine. The server
 creates a virtual mouse and keyboard through `/dev/uinput` and serves a touch UI
 that you open in the phone's browser. Nothing to install on the phone.
 
-Everything lives in one file, `remote_mouse.py`. It needs the Python standard
+Everything lives in one file, `uinput-touchpad.py`. It needs the Python standard
 library and `python-evdev`, nothing else. There is no build step, no bundler and
 no daemon to register: copy the file to a machine and run it. That is the main
 reason to pick this over the more featureful alternatives listed at the bottom.
 
 ## Requirements
 
+- The phone and the machine on the same local network
 - Linux with `uinput` available
 - Python 3.8 or newer
 - [`python-evdev`](https://pypi.org/project/evdev/) (`pip install -r requirements.txt`)
@@ -31,7 +32,7 @@ Log out and back in for the group change to apply.
 ## Usage
 
 ```bash
-python3 remote_mouse.py
+python3 uinput-touchpad.py
 ```
 
 The server prints a URL containing a freshly generated token, plus a QR code if
@@ -44,6 +45,9 @@ http://192.168.2.129:8000/?t=aB3xY1kQ
 Open it on the phone. Both devices have to be on the same network. Stop the
 server with Ctrl-C.
 
+If the page does not load, a firewall on the host is the usual reason. See
+[Troubleshooting](#troubleshooting).
+
 ### Options
 
 | Flag | Description |
@@ -54,7 +58,7 @@ server with Ctrl-C.
 | `--ip ADDR` | Force the IP used in the printed URL and QR code |
 | `-v`, `--verbose` | Log every request and WebSocket event |
 
-A token can also come from the `REMOTE_MOUSE_TOKEN` environment variable, which
+A token can also come from the `UINPUT_TOUCHPAD_TOKEN` environment variable, which
 keeps it out of the process list.
 
 `--ip` is useful on hosts with several interfaces, where the address picked
@@ -130,7 +134,7 @@ machine running the server. Treat the token as a password.
 - Run this on a network you trust. Do not forward the port through a router and
   do not expose it to the internet.
 - `--token` puts the token into the process list, where other local users can
-  read it. Prefer `REMOTE_MOUSE_TOKEN`.
+  read it. Prefer `UINPUT_TOUCHPAD_TOKEN`.
 
 If a connection dies while a button is held, for example because the phone's
 screen turned off mid-drag, a watchdog releases every pressed key and button
@@ -161,8 +165,15 @@ interfere.
 If the page does not load at all, the firewall is the usual cause:
 
 ```bash
+# ufw
 sudo ufw allow from 192.168.2.0/24 to any port 8000 proto tcp
+
+# firewalld
+sudo firewall-cmd --add-port=8000/tcp
 ```
+
+Adjust the subnet to your own. The `firewalld` rule applies to the default
+zone and is dropped on the next reload; add `--permanent` to keep it.
 
 Run with `-v` to log every request, plus the reason a client disconnected and
 how many frames it sent before doing so.

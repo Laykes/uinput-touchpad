@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""Remote mouse tool: turns a phone on the LAN into a modern touchpad.
+"""uinput-touchpad: turns a phone on the LAN into a modern touchpad.
 
 Creates a virtual mouse and keyboard device via /dev/uinput (evdev) and serves
 a web app tuned for usability and ergonomics.
 Python standard library + python-evdev only, no root required.
 
-    python3 remote_mouse.py [--port 8000] [--token SECRET]
+    python3 uinput-touchpad.py [--port 8000] [--token SECRET]
 """
 
 import argparse
@@ -117,7 +117,7 @@ class VirtualInputDevice:
             e.EV_REL: [e.REL_X, e.REL_Y, e.REL_WHEEL, e.REL_HWHEEL],
             e.EV_KEY: list(set(all_keys)),
         }
-        self.ui = UInput(caps, name="remote-mouse", version=1)
+        self.ui = UInput(caps, name="uinput-touchpad", version=1)
         self.lock = threading.Lock()
         self.down = set()
         self.last_input = time.monotonic()
@@ -309,7 +309,7 @@ def ws_send(sock, payload, opcode=0x1):
 
 class Handler(BaseHTTPRequestHandler):
     protocol_version = "HTTP/1.1"
-    server_version = "remote-mouse"
+    server_version = "uinput-touchpad"
 
     def log_message(self, fmt, *args):
         if self.server.verbose:
@@ -486,7 +486,7 @@ PAGE = r"""<!doctype html>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#0b0f17">
-<title>Remote Mouse</title>
+<title>uinput-touchpad</title>
 <style>
   :root {
     --bg: #0b0f17;
@@ -2091,7 +2091,7 @@ def main():
     ap = argparse.ArgumentParser(description="Turn a phone into a modern touchpad over the LAN")
     ap.add_argument("--port", type=int, default=8000, help="Web server port (default: 8000)")
     ap.add_argument("--host", default="0.0.0.0", help="Bind address (default: 0.0.0.0)")
-    ap.add_argument("--token", default=os.environ.get("REMOTE_MOUSE_TOKEN"), help="Secret access token")
+    ap.add_argument("--token", default=os.environ.get("UINPUT_TOUCHPAD_TOKEN"), help="Secret access token")
     ap.add_argument("--ip", help="Force the IP used in the URL/QR code (for hosts with several NICs)")
     ap.add_argument("-v", "--verbose", action="store_true", help="Log every request")
     args = ap.parse_args()
@@ -2112,7 +2112,7 @@ def main():
     url = f"http://{args.ip or lan_ip()}:{args.port}/?t={token}"
 
     print("\n  ========================================================")
-    print("  🚀 Remote Mouse is running!")
+    print("  🚀 uinput-touchpad is running!")
     print(f"  📱 Open this on your phone:\n\n     {url}\n")
     if shutil.which("qrencode"):
         subprocess.run(["qrencode", "-t", "ANSIUTF8", url], check=False)
